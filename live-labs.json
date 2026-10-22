@@ -1,0 +1,254 @@
+{
+  "01": {
+    "title": "Give your agent project instructions",
+    "intro": "AGENTS.md is a Markdown file that tells a coding agent how to work in this project. We will write one, then check that the agent reads it.",
+    "steps": [
+      {
+        "title": "Create your own project",
+        "text": "Keep this separate from the downloaded workshop materials.",
+        "code": "mkdir cityjs-session-planner\ncd cityjs-session-planner\ngit init -b main\nmkdir docs\nmkdir src"
+      },
+      {
+        "title": "Write the instructions",
+        "text": "Copy the working-agreement template into AGENTS.md. Add one keyboard-accessibility rule. For Claude, create CLAUDE.md containing @AGENTS.md. Templates are linked below."
+      },
+      {
+        "title": "Check a fresh chat",
+        "text": "Open Codex or Claude in this folder. Ask it to locate the instruction files and explain the rules. Do not let it build the app yet. Save your observation in docs/learning-log.md.",
+        "code": "git add .\ngit commit -m \"Define workshop working agreement\""
+      }
+    ],
+    "checks": [
+      "A fresh agent chat finds your project instructions.",
+      "You can explain the rule your pair added."
+    ],
+    "tryIt": "Change one rule, start another fresh chat and check what it loads.",
+    "links": [
+      [
+        "AGENTS.md template",
+        "downloads/AGENTS.md.txt"
+      ],
+      [
+        "CLAUDE.md template",
+        "downloads/CLAUDE.md.txt"
+      ]
+    ]
+  },
+  "02": {
+    "title": "Decide what the app must do",
+    "intro": "A spec says what the app must do. Acceptance criteria are examples you can check. A plan splits that work into small tasks.",
+    "steps": [
+      {
+        "title": "Write your spec",
+        "text": "Use the example spec for docs/spec.md. Keep its required behaviour. Choose your own conflict message and empty-agenda display. Consecutive sessions are allowed; overlapping ones are rejected."
+      },
+      {
+        "title": "Ask for a plan only",
+        "text": "Ask your agent to write docs/plan.md. The first task is catalog, add/remove, clash prevention and local persistence. Filters, favorites and export come later."
+      },
+      {
+        "title": "Review and save",
+        "text": "Check the plan matches your decisions. One person will own App.tsx; filters and favorites will have separate files. Commit the approved documents.",
+        "code": "git add docs\ngit commit -m \"Approve planner acceptance criteria and task graph\""
+      }
+    ],
+    "checks": [
+      "Your spec includes one allowed and one rejected time example.",
+      "Your plan approves only the core planner for the next lab."
+    ],
+    "tryIt": "Ask whether “allow any two sessions” conflicts with “reject overlapping sessions.” Resolve the answer yourselves.",
+    "links": [
+      [
+        "Example spec",
+        "downloads/spec.md"
+      ],
+      [
+        "Session fixture",
+        "https://github.com/shivaylamba/cityjs-agentic-coding-workshop/blob/main/materials/reference/src/sessions.ts"
+      ]
+    ]
+  },
+  "03": {
+    "title": "Build the first working planner",
+    "intro": "Build one complete journey: click Add, check the scheduling rule, update the agenda and show the result. The agent writes code; you check it.",
+    "steps": [
+      {
+        "title": "Ask your agent to build the core app",
+        "text": "Use React, TypeScript and Vite, your spec and the supplied fixture. Include add/remove, duplicate/full/clash rejection and safe local persistence. Leave filters, favorites and export for later."
+      },
+      {
+        "title": "Run it and try the journey",
+        "text": "Run the checks below, then open the URL Vite prints. Add Opening the agent loop; reject Concurrent choices; add Spec clinic; refresh; remove a session. Check each result.",
+        "code": "npm run typecheck\nnpm test\nnpm run build\nnpm run test:e2e\nnpm run dev -- --host 127.0.0.1"
+      },
+      {
+        "title": "Save the working app",
+        "text": "Inspect the diff and check results. Commit only the intended files, then name the checkpoint.",
+        "code": "git diff --check\ngit add .\ngit commit -m \"Build and verify the core planner\"\ngit tag checkpoint-03"
+      }
+    ],
+    "checks": [
+      "Clashes are rejected; consecutive sessions are allowed.",
+      "Refresh keeps the agenda, and the real checks pass."
+    ],
+    "tryIt": "Move a session end time forward by one minute. Predict the clash result, then check it.",
+    "links": []
+  },
+  "04": {
+    "title": "Connect a tool and create a Skill",
+    "intro": "MCP connects an agent to external tools or data. A Skill gives it reusable workflow instructions. We will retrieve documentation and create a release-check Skill.",
+    "steps": [
+      {
+        "title": "Connect the documentation server",
+        "text": "Run only the commands for your client, then open a fresh agent chat if needed.",
+        "code": "codex mcp add openaiDeveloperDocs --url https://developers.openai.com/mcp\ncodex mcp list\n\n# Claude alternative:\nclaude mcp add --transport http openaiDeveloperDocs https://developers.openai.com/mcp\nclaude mcp list"
+      },
+      {
+        "title": "Retrieve one fact",
+        "text": "Ask the agent to use that MCP server to explain project instructions versus execution permissions. Inspect the tool call. Save the source URL and one takeaway in docs/research.md."
+      },
+      {
+        "title": "Install and invoke release-check",
+        "text": "Copy the Skill template to the path for your client. Invoke it in chat, not the terminal. Temporarily fail a check, verify its report says FAILED, then restore the change.",
+        "code": "Codex file: .agents/skills/release-check/SKILL.md\nCodex chat: $release-check\n\nClaude file: .claude/skills/release-check/SKILL.md\nClaude chat: /release-check"
+      }
+    ],
+    "checks": [
+      "You observed a real retrieval, or recorded MCP as unverified.",
+      "Your Skill reports a failed check instead of claiming success."
+    ],
+    "tryIt": "Remove one required check script. Does the Skill report it as missing? Restore it afterward.",
+    "links": [
+      [
+        "Release-check Skill template",
+        "downloads/SKILL.md.txt"
+      ]
+    ]
+  },
+  "05": {
+    "title": "Build two features in separate worktrees",
+    "intro": "A worktree is a separate checkout of your Git repository. Give one agent filters and another favorites, then combine their work.",
+    "steps": [
+      {
+        "title": "Prepare two checkouts",
+        "text": "Save and commit current work first. From the original project, create the worktrees.",
+        "code": "git status --short\ngit tag parallel-base\ngit worktree add -b feat/filters ../cityjs-filters parallel-base\ngit worktree add -b feat/favorites ../cityjs-favorites parallel-base"
+      },
+      {
+        "title": "Assign the work",
+        "text": "In cityjs-filters, build title/room filtering. In cityjs-favorites, build the favorites control/helper. Use the agreed props. Workers must not edit App.tsx, shared types or package files. Review and commit each worker’s changes."
+      },
+      {
+        "title": "Merge and connect the features",
+        "text": "Return to the original project. Merge each branch, then have one integrator wire the components and persistence. Test search, room and favorites-only together.",
+        "code": "git merge --no-ff feat/filters\ngit merge --no-ff feat/favorites\n# Wire App.tsx, then run:\nnpm run check\nnpm run test:e2e\ngit add .\ngit commit -m \"Integrate filters and favorites\"\ngit tag checkpoint-05"
+      }
+    ],
+    "checks": [
+      "Each worker used its assigned checkout and files.",
+      "Combined filters work, and the earlier agenda checks still pass."
+    ],
+    "tryIt": "If a worker wants to change a shared prop, ask it to propose the change to the integrator first.",
+    "links": [
+      [
+        "Feature contracts",
+        "downloads/spec.md"
+      ]
+    ]
+  },
+  "06": {
+    "title": "Try bounded autonomy",
+    "intro": "Bounded autonomy means letting the agent complete a task inside clear limits. Everyone builds export; the instructor assigns a guided or autonomous approach.",
+    "steps": [
+      {
+        "title": "Start from the same checkpoint",
+        "text": "Use the integrated planner. Create an export branch and record the starting commit.",
+        "code": "git switch -c experiment/export\ngit rev-parse HEAD"
+      },
+      {
+        "title": "Build agenda export",
+        "text": "Download cityjs-agenda.txt with time, exact title and room, ordered by start time then ID. An empty agenda shows a message without downloading. No new dependencies, push or deploy. Follow your assigned supervision approach."
+      },
+      {
+        "title": "Inspect and score",
+        "text": "Open the downloaded file. Try an empty agenda and a title with punctuation. Use the scorecard, record interventions and time, then commit the reviewed feature."
+      }
+    ],
+    "checks": [
+      "The downloaded text matches the selected agenda.",
+      "You recorded results and interventions, including anything unfinished."
+    ],
+    "tryIt": "Use a title with quotation marks and a non-ASCII character. Does it survive unchanged?",
+    "links": [
+      [
+        "Comparison scorecard",
+        "downloads/experiment-scorecard.md"
+      ]
+    ]
+  },
+  "07": {
+    "title": "Find a bug and add a release gate",
+    "intro": "A regression test catches a bug when it returns. CI runs checks on a separate runner. We will prove our checks reject a broken candidate.",
+    "steps": [
+      {
+        "title": "Reproduce the boundary bug",
+        "text": "On a disposable change, replace < with <= in the overlap rule. Back-to-back sessions should now be incorrectly rejected. Show the failing test; restore the correct rule."
+      },
+      {
+        "title": "Review, repair and check",
+        "text": "Ask a fresh agent chat to review your change against checkpoint-05. Verify a concrete finding before accepting a fix. Keep a regression test and run the checks.",
+        "code": "git diff checkpoint-05...HEAD\nnpm run typecheck\nnpm test\nnpm run build\nnpm run test:e2e"
+      },
+      {
+        "title": "Prepare the review packet",
+        "text": "Copy the CI template to .github/workflows/ci.yml. Update README.md, docs/pr-summary.md and docs/release-evidence.md. If GitHub access is ready, open a draft PR in your own repo and inspect CI; otherwise record remote CI NOT RUN."
+      }
+    ],
+    "checks": [
+      "A check fails with the bug and passes after repair.",
+      "Your review packet records actual results; pending CI is not called passed."
+    ],
+    "tryIt": "Run release-check on a failing candidate. Does it refuse to call the candidate ready?",
+    "links": [
+      [
+        "CI template",
+        "downloads/ci.yml"
+      ],
+      [
+        "Release evidence template",
+        "downloads/release-evidence.md"
+      ]
+    ]
+  },
+  "08": {
+    "title": "Deploy and test the hosted app",
+    "intro": "A local pass does not prove the hosted app works. Publish a preview, test its actual URL and record the result.",
+    "steps": [
+      {
+        "title": "Check the candidate",
+        "text": "Commit the intended app first. Run the checks and record the SHA.",
+        "code": "git status --short\nnpm run check\nnpm run test:e2e\ngit rev-parse HEAD"
+      },
+      {
+        "title": "Create a preview",
+        "text": "From your app folder, run vercel. Check the account and project; use Vite with dist output. The planner needs no model API key.",
+        "code": "vercel"
+      },
+      {
+        "title": "Test the actual hosted URL",
+        "text": "Try add, clash rejection, consecutive sessions, refresh, combined filters, favorites and export. Check keyboard use and a narrow screen. Record the URL, SHA and results. Choose production only after these pass."
+      }
+    ],
+    "checks": [
+      "The important journey works on the actual preview URL.",
+      "Your report identifies the commit, URL and remaining limits—or says LOCAL ONLY."
+    ],
+    "tryIt": "Open a private browser window. Its agenda should be empty because storage belongs to that browser context.",
+    "links": [
+      [
+        "Release evidence template",
+        "downloads/release-evidence.md"
+      ]
+    ]
+  }
+}

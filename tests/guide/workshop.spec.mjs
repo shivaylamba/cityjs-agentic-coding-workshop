@@ -12,15 +12,15 @@ test('all eight attendee labs provide task, evidence and recovery',async({page})
  for(const id of ['01','02','03','04','05','06','07','08']){
   await page.goto('/#'+id);const c=page.locator('#chapter-'+id);
   await expect(c.getByRole('heading',{level:1})).toBeVisible();
-  await expect(c.getByLabel('Prompt for lab '+id,{exact:true})).toBeVisible();
+  await c.locator('.prompt-help summary').click();await expect(c.getByLabel('Prompt for lab '+id,{exact:true})).toBeVisible();
   await expect(c.locator('.evidence li')).not.toHaveCount(0);
   await c.locator('.recovery summary').click();await expect(c.locator('.recovery p')).toBeVisible();
  }
 });
 test('prompt, notes and progress survive reload',async({page})=>{
- await page.goto('/#01');await page.getByLabel('Prompt for lab 01',{exact:true}).fill('My decision');
+ await page.goto('/#01');await page.locator('#chapter-01 .prompt-help summary').click();await page.locator('#chapter-01 .notebook summary').click();await page.getByLabel('Prompt for lab 01',{exact:true}).fill('My decision');
  await page.locator('#notes-01').fill('My observation');await page.locator('#chapter-01 .complete').check();
- await page.reload();await expect(page.getByLabel('Prompt for lab 01',{exact:true})).toHaveValue('My decision');
+ await page.reload();await page.locator('#chapter-01 .prompt-help summary').click();await page.locator('#chapter-01 .notebook summary').click();await expect(page.getByLabel('Prompt for lab 01',{exact:true})).toHaveValue('My decision');
  await expect(page.locator('#notes-01')).toHaveValue('My observation');await expect(page.locator('#chapter-01 .complete')).toBeChecked();
 });
 test('search and next navigation work',async({page})=>{
@@ -29,7 +29,7 @@ test('search and next navigation work',async({page})=>{
  await page.getByRole('button',{name:'Next chapter →',exact:true}).click();await expect(page).toHaveURL(/#06$/);
 });
 test('timer and real attendee packet download work',async({page})=>{
- await page.goto('/#01');const c=page.locator('#chapter-01');await c.getByRole('button',{name:'Start timer',exact:true}).click();
+ await page.goto('/#01');const c=page.locator('#chapter-01');await c.locator('.notebook summary').click();await c.getByRole('button',{name:'Start timer',exact:true}).click();
  await expect(c.locator('output')).not.toHaveText('15:00');await c.getByRole('button',{name:'Reset',exact:true}).click();
  await expect(c.locator('output')).toHaveText('15:00');await page.goto('/#toolkit');
  const pending=page.waitForEvent('download');await page.locator('#chapter-toolkit a[href="workshop-packet.zip"]').click();

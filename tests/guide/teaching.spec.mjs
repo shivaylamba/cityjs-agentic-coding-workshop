@@ -1,15 +1,19 @@
-
 import {test,expect} from '@playwright/test';
-test('every lab explains its concepts with worked examples before the task',async({page})=>{
+test('live labs show a short explanation and three actions; extras start collapsed',async({page})=>{
  for(const id of ['01','02','03','04','05','06','07','08']){
-  await page.goto('/#'+id);const chapter=page.locator('#chapter-'+id);
-  await expect(chapter.getByRole('heading',{name:'Understand before building',exact:true})).toBeVisible();
-  expect(await chapter.locator('.teaching article').count()).toBeGreaterThanOrEqual(3);
-  expect(await chapter.locator('.teaching pre').count()).toBeGreaterThanOrEqual(3);
-  const expected=chapter.locator('.teaching details').first();await expected.locator('summary').click();
-  await expect(expected.locator('p')).toBeVisible();
-  expect(await chapter.evaluate(el=>!!(el.querySelector('.teaching').compareDocumentPosition(el.querySelector('.steps'))&Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
+  await page.goto('/#'+id);const c=page.locator('#chapter-'+id);
+  await expect(c.locator('.live-intro')).toBeVisible();
+  await expect(c.locator('.live-steps .step')).toHaveCount(3);
+  await expect(c.locator('.evidence li')).toHaveCount(2);
+  await expect(c.locator('.prompt-help textarea')).toBeHidden();
+  await expect(c.locator('.notebook textarea')).toBeHidden();
+  await expect(c.locator('.live-intro')).not.toHaveText('');
+  const longScript=c.locator('.presenter-notes');
+  if(await longScript.count()){
+   await expect(c.locator('.host-brief')).toBeVisible();await expect(longScript.locator('.script')).toBeHidden();
+   await longScript.locator(':scope > summary').click();await expect(longScript.locator('.script')).toBeVisible();
+  }else await expect(c.locator('.teaching')).toHaveCount(0);
  }
- await page.setViewportSize({width:390,height:844});await page.goto('/#01');
+ await page.setViewportSize({width:390,height:844});await page.goto('/#03');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
