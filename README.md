@@ -22,6 +22,38 @@ We are building a fictional CityJS session planner.
 - Do not build application code until asked.
 
 
+# Lab 5 - prompt 
+
+```
+Prepare the component interfaces for filters and favorites.
+Do not implement the features yet.
+
+Keep the contracts in src/types.ts:
+
+FilterValue:
+- query: string
+- room: string
+
+FiltersProps:
+- value: FilterValue
+- onChange(next: FilterValue): void
+
+FavoritesProps:
+- count: number
+- only: boolean
+- onOnlyChange(next: boolean): void
+
+Ensure typed placeholder components exist at:
+- src/features/Filters.tsx
+- src/features/Favorites.tsx
+
+Record the contracts in docs/plan.md.
+
+The integrator owns App.tsx, shared types,
+persistence, package files and lockfile.
+Run typecheck.:
+```
+
 ## Attendees: start here
 
 Read the guide's prework. Use Codex **or** Claude Code; access to both is not required. Install Node 24 LTS, npm, Git, an editor and the Playwright browser before the session. Your coding agent needs authenticated access. The React app itself needs **no model API key**.
