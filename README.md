@@ -7,6 +7,21 @@ A three-hour **CityJS** hands-on workshop, hosted at Agile Actors. Build a ficti
 - [Download the workshop packet](https://cityjs-agentic-coding-attendees.shivaylamba.chatgpt.site/workshop-packet.zip)
 - [Verification evidence](dist/validation.json)
 
+## Initial AGENTS.md
+
+# Project instructions
+
+We are building a fictional CityJS session planner.
+
+- Use React, TypeScript and Vite.
+- This app creates a personal agenda; it does not reserve seats.
+- Keep scheduling rules separate from React components.
+- Every interactive control must work with the keyboard.
+- Run relevant checks after changing code.
+- Report failed or unrun checks honestly.
+- Do not build application code until asked.
+
+
 ## Attendees: start here
 
 Read the guide's prework. Use Codex **or** Claude Code; access to both is not required. Install Node 24 LTS, npm, Git, an editor and the Playwright browser before the session. Your coding agent needs authenticated access. The React app itself needs **no model API key**.
