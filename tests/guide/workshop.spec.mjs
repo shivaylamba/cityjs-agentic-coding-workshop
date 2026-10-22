@@ -14,7 +14,7 @@ test('all eight attendee labs provide task, evidence and recovery',async({page})
   await expect(c.getByRole('heading',{level:1})).toBeVisible();
   await expect(c.getByLabel('Prompt for lab '+id,{exact:true})).toBeVisible();
   await expect(c.locator('.evidence li')).not.toHaveCount(0);
-  await c.locator('summary').click();await expect(c.locator('.recovery p')).toBeVisible();
+  await c.locator('.recovery summary').click();await expect(c.locator('.recovery p')).toBeVisible();
  }
 });
 test('prompt, notes and progress survive reload',async({page})=>{

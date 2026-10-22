@@ -3,6 +3,8 @@ from pathlib import Path
 p=Path(__file__).parent
 d=json.loads((p/'content.json').read_text())
 assert d.get('audience')=='attendee-only'
+teaching=json.loads((p/'teaching.json').read_text())
+for lab in d['labs']:lab['teaching']=teaching[lab['id']]
 for lab in d['labs']:
  assert not any(k in lab for k in ['script','slides','transition'])
 (p/'dist/content.json').write_text(json.dumps(d,ensure_ascii=False,indent=2)+'\n')

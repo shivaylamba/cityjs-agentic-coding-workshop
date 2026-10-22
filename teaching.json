@@ -1,0 +1,234 @@
+{
+  "01": [
+    {
+      "title": "What is a coding agent, and what is context?",
+      "text": "A model generates suggestions. The harness is the software that lets it read files, edit code and run tools. A coding agent combines the model with that action loop. Context is the information available for its current decision; opening a new chat does not mean it automatically knows every previous decision.",
+      "code": "Goal → read applicable instructions → inspect files → propose/edit → run checks → inspect result",
+      "walkthrough": "In our planner, the goal might be preventing clashes. The agent needs the scheduling rule and relevant code, not unrelated chat history. Tool results are observations; a confident sentence alone is not a test result.",
+      "question": "Why does a new conversation need project context?",
+      "answer": "It needs an explicit, discoverable source for project rules instead of relying on a previous conversation."
+    },
+    {
+      "title": "What is AGENTS.md?",
+      "text": "AGENTS.md is an ordinary Markdown file of instructions for coding agents working in a project. It does not create an agent or execute code. Put it at the root of your workshop project. Codex discovers applicable instructions; nested overrides and client settings can affect what loads, so verify the active instructions.",
+      "code": "# Project instructions\nBuild a fictional CityJS planner with React and TypeScript.\n- Do not claim to reserve real seats.\n- Keep scheduling rules separate from React.\n- Run relevant checks after changing code.\n- Report failed or unrun checks honestly.",
+      "walkthrough": "The heading names its purpose. The first sentence fixes the stack and product. The next lines constrain product claims, code organisation and evidence. None is a technical permission setting: the client still controls tool access.",
+      "question": "Which rule would you add for keyboard users?",
+      "answer": "For example: every interactive control must have an accessible label and work from the keyboard."
+    },
+    {
+      "title": "README, instructions, spec and learning log",
+      "text": "README.md explains setup and use to people. AGENTS.md describes stable working rules for agents. docs/spec.md will describe product behaviour. docs/plan.md will describe implementation tasks. docs/learning-log.md is your record of decisions and observed results; it is our convention, not a file every agent automatically loads.",
+      "code": "cityjs-session-planner/\n  AGENTS.md\n  CLAUDE.md\n  docs/\n    learning-log.md",
+      "walkthrough": "CLAUDE.md contains @AGENTS.md for this workshop’s shared-instructions compatibility path. Supported Claude versions may also discover AGENTS.md directly; inspect your client rather than assuming identical discovery. Copy template contents to the actual filenames: AGENTS.md.txt is a downloadable example, not the intended active name.",
+      "question": "Should today’s one-off export request live permanently in AGENTS.md?",
+      "answer": "Keep the stable checking rules there; put the export behaviour in the spec and selected task."
+    },
+    {
+      "title": "Commit, push and a fresh conversation",
+      "text": "A commit is a local snapshot of selected changes. A push sends commits to a remote. Lab 01 needs only a local commit. A fresh agent conversation tests whether instructions are discoverable independently of the earlier chat.",
+      "code": "git status --short\ngit add AGENTS.md CLAUDE.md docs\ngit commit -m \"Define workshop working agreement\"",
+      "walkthrough": "Status shows changed files. Add stages the intended files. Commit records them locally; it does not upload anything. Ask the new agent to identify instruction paths and show the client’s file-loading evidence when available.",
+      "question": "Does writing “do not deploy” replace permission controls?",
+      "answer": "No. It expresses a working rule; inspect the client’s actual permissions separately."
+    }
+  ],
+  "02": [
+    {
+      "title": "Specification versus prompt versus plan",
+      "text": "A specification records observable product behaviour. A task prompt delegates one selected piece of work. A plan orders the work and names dependencies. These documents are workshop conventions, not special executable files.",
+      "code": "Requirement: prevent agenda clashes.\nExample: 09:00–09:30 + 09:30–10:00 → allow.\nExample: 09:00–09:31 + 09:30–10:00 → reject.\nTask: implement only add/remove and conflict protection.",
+      "walkthrough": "The broad requirement is ambiguous. The examples remove a boundary ambiguity. The task authorises one slice of the spec; it does not authorise implementing every future feature.",
+      "question": "Can “make it user-friendly” be our only acceptance criterion?",
+      "answer": "No. Name an observable outcome, such as a visible clash message that leaves the agenda unchanged."
+    },
+    {
+      "title": "Acceptance criteria, fixtures and non-goals",
+      "text": "Acceptance criteria describe what must be demonstrably true. A fixture is fixed sample data used to make examples repeatable. A non-goal states what this application will not attempt. AC1–AC8 are labels so a task and test can point to the same requirement.",
+      "code": "AC2: A rejected duplicate leaves the agenda unchanged.\nAC3: Back-to-back sessions are allowed.\nNon-goal: no real seat reservations.\nFixture: materials/reference/src/sessions.ts",
+      "walkthrough": "Use the fixture from the materials as data, not the entire completed app as a starter. Keep stable IDs and times. Each pair chooses the conflict message and empty-agenda presentation; those are actual product decisions.",
+      "question": "What could a test assert after rejecting a clash?",
+      "answer": "The error is visible and the set of selected session IDs is unchanged."
+    },
+    {
+      "title": "Half-open intervals, explained with a clock",
+      "text": "We include the start of a session and exclude its endpoint when comparing intervals. This allows the next session to start at that endpoint. Two sessions clash only if each starts before the other ends. Invalid intervals must be rejected separately.",
+      "code": "a.startMinute < b.endMinute\n  && b.startMinute < a.endMinute",
+      "walkthrough": "The first comparison asks whether A begins before B finishes. The second asks whether B begins before A finishes. Both must be true. Strict < allows touching endpoints; <= would treat that boundary as a clash.",
+      "question": "Does changing the room make two overlapping talks attendable?",
+      "answer": "No. The conflict belongs to one person’s time, regardless of room."
+    },
+    {
+      "title": "Dependencies and the smallest approved slice",
+      "text": "A dependency must be ready before another task can rely on it. Stable Session and feature-prop types are prerequisites for independent workers. A vertical slice is one complete user journey through the relevant layers.",
+      "code": "Shared types → core agenda → checkpoint\n                          ↘ filters\n                          ↘ favorites\nfilters + favorites → integration → export",
+      "walkthrough": "The plan reserves App.tsx for one integrator. Filters and favorites can then have distinct ownership. In this lab ask for a plan only; authorise the first slice after reviewing it.",
+      "question": "Which file ownership would make parallel work risky?",
+      "answer": "Both workers independently editing App.tsx or changing shared props without agreement."
+    }
+  ],
+  "03": [
+    {
+      "title": "Scaffolding and a vertical slice",
+      "text": "Scaffolding creates the project structure, dependencies and scripts. React renders the interface, TypeScript checks types and Vite serves/builds the frontend. The slice connects a click to a domain decision, state update and visible result.",
+      "code": "Click Add → validate session → reject OR update agenda → render feedback\nRefresh → read stored IDs → validate them → restore safe state",
+      "walkthrough": "Domain functions belong outside React so they can be tested directly. React state drives the displayed agenda. Storage is another boundary: parsed data may be corrupt or stale and must be checked before use.",
+      "question": "Why not build all the visual components first?",
+      "answer": "A complete small journey exposes integration errors sooner than a collection of unconnected screens."
+    },
+    {
+      "title": "What each check proves",
+      "text": "Different checks answer different questions. Type checking catches incompatible program shapes; unit tests exercise selected rules; a build produces deployment assets; browser tests exercise real page interactions. None alone proves all behaviour.",
+      "code": "npm run typecheck  # TypeScript checks\nnpm test           # domain assertions\nnpm run build      # production assets\nnpm run test:e2e   # browser journey\nnpm run check      # first three, via real scripts",
+      "walkthrough": "Inspect package.json: the script names are our agreed contract, not built-in guarantees. A script that only prints “passed” proves nothing. Keep browser tests at one worker. Use the dev server’s printed URL, not an assumed localhost port.",
+      "question": "Does a passing build prove reload persistence?",
+      "answer": "No. Observe reload in the browser and assert it in the relevant browser test."
+    },
+    {
+      "title": "Local persistence and evidence",
+      "text": "Browser-local storage belongs to an origin and browser profile. It is not cloud sync. Reading, parsing or writing it can fail. A rejected selection must not be persisted as if it succeeded.",
+      "code": "Observe: add → clash rejected → consecutive add → reload → remove\nAlso inspect: corrupt stored JSON → usable page, safe fallback",
+      "walkthrough": "Check the visible agenda after each operation. Ask the agent for executed commands and results, then independently inspect a test and the browser journey. The full reference includes a storage-error case for recovery and inspection.",
+      "question": "What should happen if storage is unavailable?",
+      "answer": "The current visit should remain usable with honest feedback; do not promise persistence that failed."
+    },
+    {
+      "title": "Diff, commit and tag",
+      "text": "A diff shows changed lines. A commit records the selected snapshot. A tag names a checkpoint commit. These let later work start from a known base without replacing your files with another exercise starter.",
+      "code": "git diff\ngit diff --check\ngit add .\ngit commit -m \"Build and verify the core planner\"\ngit tag checkpoint-03",
+      "walkthrough": "Read unexpected files before staging everything. diff --check catches whitespace problems, not application correctness. The tag will not include uncommitted edits; save and validate the intended slice first.",
+      "question": "What would invalidate the evidence you just collected?",
+      "answer": "Changing the relevant code or configuration afterward without checking the new candidate."
+    }
+  ],
+  "04": [
+    {
+      "title": "MCP is a tool connection",
+      "text": "Model Context Protocol connects an agent client to tools and data exposed by a server. The client is Codex or Claude Code; the server here supplies official documentation search and retrieval. This connection does not provide the model generating your code.",
+      "code": "Agent client → documentation MCP search → retrieve page → source + observation\nRegistration ≠ successful retrieval",
+      "walkthrough": "Register the documented server for your chosen client using the build steps below. Then inspect an actual search/retrieval trace and save the source URL. No runtime MCP service is being added to the planner; this is not WebMCP.",
+      "question": "If mcp list shows a server, has the exercise succeeded?",
+      "answer": "Not yet. We need at least one successful retrieval or an honest unverified result."
+    },
+    {
+      "title": "A Skill is a reusable workflow",
+      "text": "A Skill is a directory with SKILL.md instructions and optional supporting resources. A useful description helps the client select it. Our release-check Skill standardises inspection and reporting; it does not grant permissions or magically make tests pass.",
+      "code": "---\nname: release-check\ndescription: Inspect a candidate and report real validation evidence.\n---\nRead project rules and package.json.\nRun the available required checks.\nReport PASSED, FAILED or NOT RUN with reasons.\nDo not edit the candidate or deploy.",
+      "walkthrough": "The frontmatter names and describes the workflow. The body supplies its steps. Install the full supplied template, not just this shortened teaching example. Use the selected client’s project Skill path from the build instructions.",
+      "question": "How is this different from AGENTS.md?",
+      "answer": "AGENTS.md holds general project rules; release-check describes a particular repeatable task."
+    },
+    {
+      "title": "Discovery, invocation and permission",
+      "text": "Discovery means the client recognises the Skill as available. Invocation means it actually uses the workflow. Tool permission is a separate decision controlled by the client/environment. Explicitly opening a file is a useful fallback but does not prove native Skill discovery.",
+      "code": "Codex project path: .agents/skills/release-check/SKILL.md\nClaude project path: .claude/skills/release-check/SKILL.md\nChat invocation: $release-check OR /release-check",
+      "walkthrough": "Use only the path and invocation for your chosen client. Restart/reload when needed, inspect the trace, and deliberately test a failed or missing check. If a sandbox blocks a test server, record NOT RUN and use the authorised host terminal.",
+      "question": "Should the Skill repair the tests while evaluating the candidate?",
+      "answer": "No. It should report the candidate honestly; a repair is a separately authorised task."
+    }
+  ],
+  "05": [
+    {
+      "title": "Branch, worktree and session are different",
+      "text": "A branch names a line of Git history. A worktree is a separate directory checked out on a branch. An agent session is a conversation/process. Two sessions in one directory can still overwrite each other’s files.",
+      "code": "cityjs-session-planner/  → main; integration owner\ncityjs-filters/          → feat/filters; worker A\ncityjs-favorites/        → feat/favorites; worker B",
+      "walkthrough": "Create the worktrees from the committed parallel-base. They do not copy unsaved changes automatically. Separate directories isolate edits, but they are not security sandboxes and still use host resources.",
+      "question": "Can two chats safely edit App.tsx just because they have different tasks?",
+      "answer": "No. Separate checkouts and agreed ownership are needed; logical integration still needs review."
+    },
+    {
+      "title": "Interfaces are agreements between workers",
+      "text": "A typed interface says what data a component receives and what callbacks it may call. Freezing the props lets workers implement separate components without guessing the parent’s needs.",
+      "code": "Filters: { value: FilterValue; onChange(next): void }\nFavorites: { count: number; only: boolean; onOnlyChange(next): void }\nIntegrator owns: App.tsx, shared types, stored IDs, package files",
+      "walkthrough": "Filter changes report query/room to the parent. Favorites controls report the only-favorites flag; the integrator owns per-card toggles and persisted favorite IDs. If a prop needs changing, return a proposal to the integrator first.",
+      "question": "Why forbid both workers from changing package-lock.json?",
+      "answer": "Concurrent dependency changes introduce shared ownership and make the merge harder to reason about."
+    },
+    {
+      "title": "Merge is text integration, checks are behaviour integration",
+      "text": "Merge combines branch histories. Git can report a clean merge even if two individually valid features compose incorrectly. Search, room and favorites-only must all apply together, with AND semantics.",
+      "code": "git merge --no-ff feat/filters\ngit merge --no-ff feat/favorites\n# Review and wire parent components.\nnpm run check\nnpm run test:e2e",
+      "walkthrough": "Inspect worker commits before merging. If a conflict appears, resolve it deliberately or use git merge --abort to abandon that merge. Then test combined filters and the old agenda rules. Run workers sequentially if memory is constrained.",
+      "question": "What should happen if a favorite is in a different room from the chosen filter?",
+      "answer": "It should remain hidden while that room filter applies; favorites-only does not override the other filters."
+    }
+  ],
+  "06": [
+    {
+      "title": "Guided work versus bounded autonomy",
+      "text": "Guided work uses human checkpoints before and during implementation. Bounded autonomy delegates a complete small task with explicit scope, checks and stop conditions. Both retain normal client permissions and human review.",
+      "code": "Goal: agenda export.\nAllowed: export helper, tests, smallest parent wiring.\nForbidden: new dependencies, spec changes, push or deploy.\nStop: contradiction, blocked environment or time limit.",
+      "walkthrough": "The room splits into treatments from checkpoint-05. Guided pairs approve a plan and inspect an intermediate diff. Autonomous pairs give the bounded contract once. Do not run both treatments on every laptop.",
+      "question": "Does autonomy mean the agent can expand requirements?",
+      "answer": "No. It must stop or ask at the agreed boundary."
+    },
+    {
+      "title": "What browser export actually does",
+      "text": "Plain-text export turns selected data into a text string, wraps it in a Blob and triggers a browser download. A temporary object URL refers to that Blob and must be released after use. Empty selection produces feedback without a download.",
+      "code": "Selected sessions → sort by start minute, then ID\n→ format time + exact title + room\n→ Blob → object URL → download cityjs-agenda.txt\n→ release object URL after use",
+      "walkthrough": "This is a flow diagram, not an API implementation. Inspect the generated helper and actual downloaded file. Quotation marks, commas and non-ASCII text should remain intact. Keep it a text export; do not add a server.",
+      "question": "Does clicking Export prove the file content is correct?",
+      "answer": "No. Open or assert the downloaded content and compare it to the selected agenda."
+    },
+    {
+      "title": "Score evidence rather than confidence",
+      "text": "Use the same acceptance criteria and baseline for both treatments. Record time, interventions and results. Different context, models or network conditions limit the comparison. Missing cost or token information is not measured.",
+      "code": "Correctness: 0–5\nEdge cases: 0–3\nReview evidence: 0–2\nAlso record: starting SHA, treatment, time, interventions",
+      "walkthrough": "Score the real file, empty case and checking evidence. A fluent completion summary adds no points. This is a practical comparison of supervision choices, not a benchmark that ranks every model.",
+      "question": "What do you record when the timebox ends before completion?",
+      "answer": "The completed evidence and unfinished work, not an assumed eventual success."
+    }
+  ],
+  "07": [
+    {
+      "title": "Review finding versus opinion",
+      "text": "A useful review finding identifies a concrete defect, where it occurs, who it affects and how to reproduce it. A fresh conversation can reduce anchoring on the implementation chat, but does not guarantee a correct review.",
+      "code": "Finding: back-to-back sessions rejected.\nTrigger: select 09:00–09:30, then 09:30–10:00.\nImpact: valid agenda cannot be created; violates AC3.\nEvidence: regression fails when < becomes <=.",
+      "walkthrough": "Give the reviewer a known base and diff. Ask it to review before editing, then independently run the reproduction. Reject unsupported findings instead of implementing every suggestion.",
+      "question": "Is “improve error handling” enough to accept a finding?",
+      "answer": "No. Ask for a specific trigger, impact and verification."
+    },
+    {
+      "title": "Regression tests and a failing gate",
+      "text": "A regression test preserves a behaviour that a defect broke. First show it fails with the defect present, then passes after the smallest repair. If the test already exists and catches the planted defect immediately, keep it: that is effective coverage.",
+      "code": "Correct: a.startMinute < b.endMinute\nDefect:  a.startMinute <= b.endMinute\nBoundary: one ends exactly when the other begins",
+      "walkthrough": "Use a disposable change and restore it before release. If a new test passes while the defect remains, it has not demonstrated that regression. Do not edit assertions simply to force a green result.",
+      "question": "What proves the gate can reject something?",
+      "answer": "A known-bad candidate produces a real nonzero check, followed by a checked repair."
+    },
+    {
+      "title": "CI, pull request and release evidence",
+      "text": "Continuous integration runs checks in a separate runner when the workflow is triggered. A pull request presents a branch change for review. A local green run does not establish remote CI success. A required-check policy needs repository configuration; a YAML file alone does not block every merge.",
+      "code": ".github/workflows/ci.yml → install from lockfile → typecheck\n→ unit tests → production build → browser tests (one worker)\ndocs/pr-summary.md → problem, behaviour, checks, limits\ndocs/release-evidence.md → SHA and actual results",
+      "walkthrough": "Inspect package scripts and workflow triggers. Open a draft PR only in your own correctly identified repository. If remote access is absent, keep a local review packet and label remote CI NOT RUN. Pending is not passed.",
+      "question": "Can a README say cloud sync because reload works?",
+      "answer": "No. Browser-local persistence is a different capability; review the documentation claims too."
+    }
+  ],
+  "08": [
+    {
+      "title": "Build, preview and production",
+      "text": "A build creates assets. Local preview serves those assets on your machine. A hosted preview publishes a candidate URL in the hosting environment. Production publication selects a public release. Success at one stage does not automatically establish success at the next.",
+      "code": "npm run build      # create assets\nnpm run preview    # serve built assets locally\nvercel             # hosted preview; inspect project/team\nvercel --prod      # only after an explicit release decision",
+      "walkthrough": "Run commands from your own app folder. For this Vite app the built output is dist. The application needs no model credentials. Verify the account and project prompts rather than accepting an unintended destination.",
+      "question": "Is an npm run preview URL a hosted deployment?",
+      "answer": "No. It is a local check of built assets."
+    },
+    {
+      "title": "Candidate identity and hosted smoke tests",
+      "text": "A candidate is the specific code being evaluated. A commit SHA identifies committed source; dirty changes mean it is not fully represented by that commit. Smoke tests check critical behaviour on the actual deployed URL.",
+      "code": "Record: clean candidate SHA + preview URL + CI status\nObserve: add / reject / consecutive / reload / filters / export\nCheck: keyboard / 390px width / console and network errors",
+      "walkthrough": "Commit and check the intended candidate before deployment. Repeat the critical journey on the exact URL returned. Record observations and failures, not the assumption that local behaviour carried over.",
+      "question": "What if the source changes after the checks?",
+      "answer": "Validate the affected changed candidate again and update its identity in the evidence report."
+    },
+    {
+      "title": "Storage origin, limitations and rollback",
+      "text": "A browser origin includes scheme, hostname and port. A new preview URL, profile or private context can have a different storage area. An empty agenda there is expected, not proof that persistence broke. Rollback restores an earlier deployment; it does not reverse every possible external side effect.",
+      "code": "localhost origin ≠ hosted preview origin\nBrowser A storage ≠ private browser storage\nRelease record: SHA, URL, time, results, limits, previous good deployment",
+      "walkthrough": "This app has no backend side effects, accounts or cloud sync. Keep the previous good deployment identifier and use your hosting dashboard if rollback is needed. A real production system requires more operational engineering than this demo.",
+      "question": "If hosting login fails, what is the honest final status?",
+      "answer": "Locally verified, not deployed; show the instructor demo without claiming your own hosted checks passed."
+    }
+  ]
+}
