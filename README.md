@@ -7,6 +7,53 @@ A three-hour **CityJS** hands-on workshop, hosted at Agile Actors. Build a ficti
 - [Download the workshop packet](https://cityjs-agentic-coding-attendees.shivaylamba.chatgpt.site/workshop-packet.zip)
 - [Verification evidence](dist/validation.json)
 
+## subagent prompt 
+
+```
+We are practising native subagent delegation.
+
+First confirm the project directory and Git branch.
+Do not edit, stage, commit, push or deploy anything.
+
+If this session supports native subagents, delegate these
+two read-only tasks. If it does not, stop and say so;
+do not pretend that two headings are separate agents.
+
+Worker A — scheduling review:
+Inspect scheduling and persistence logic plus relevant tests.
+Look for a concrete case involving overlaps, consecutive
+sessions, unavailable sessions or invalid restored selections.
+Do not edit files or run browser tests.
+
+Worker B — keyboard accessibility review:
+Inspect the React controls and existing browser tests.
+Review labels, keyboard activation, focus behaviour and feedback.
+Distinguish code-level concerns from observed browser failures.
+Do not edit files or run browser tests.
+
+Give each worker only the relevant files and requirements.
+Ask them to return at most two actionable findings:
+- File and line.
+- Trigger and expected versus actual behaviour.
+- Evidence, or explicitly what remains unverified.
+- Smallest suggested verification.
+
+Use at most two subagents, with no nested delegation.
+Do not have workers install packages or start servers.
+
+As the lead, combine the reports, remove duplicates and
+verify the strongest finding yourself using existing checks.
+Run checks sequentially.
+
+Do not invent a defect if none is supported.
+Return one final report:
+1. What each worker investigated.
+2. Confirmed findings.
+3. Unverified concerns.
+4. Actual checks run.
+5. Whether any files changed
+```
+
 ## Initial AGENTS.md
 
 # Project instructions
