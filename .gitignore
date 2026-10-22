@@ -1,0 +1,13 @@
+materials/reference/node_modules/
+materials/reference/dist/
+materials/reference/test-results/
+materials/reference/playwright-report/
+__pycache__/
+*.log
+*.tar.gz
+node_modules/
+test-results/
+playwright-report/
+.env
+.env.local
+.vercel/

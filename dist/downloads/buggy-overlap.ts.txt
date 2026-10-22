@@ -1,0 +1,5 @@
+// INTENTIONALLY WRONG. Review practice only. Never ship this candidate.
+// It rejects back-to-back sessions; strict < is the required product rule.
+export function overlaps(a, b) {
+  return a.startMinute <= b.endMinute && b.startMinute <= a.endMinute;
+}

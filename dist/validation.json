@@ -1,0 +1,109 @@
+{
+  "scope": "Attendee-only workbook and reference app",
+  "checked_on": "2026-10-22",
+  "content": {
+    "labs": 8,
+    "total_minutes": 180,
+    "lab_budgets_minutes": 155,
+    "complete_scripts_prompts_checks_experiments_recovery": true
+  },
+  "reference": {
+    "node": "24.19.0",
+    "typecheck": "passed",
+    "domain_tests": {
+      "passed": 8,
+      "failed": 0
+    },
+    "production_build": "passed",
+    "playwright": {
+      "passed": 7,
+      "failed": 0,
+      "workers": 1,
+      "covers": [
+        "add/reject/back-to-back/reload/remove",
+        "composed filters and favorites",
+        "corrupt storage/full session",
+        "real export download",
+        "mobile layout and separate browser contexts",
+        "keyboard navigation and Enter activation",
+        "denied browser storage with honest current-visit-only notice"
+      ]
+    },
+    "fresh_download": {
+      "clean_npm_ci": "passed",
+      "typecheck": "passed",
+      "domain_tests": 8,
+      "production_build": "passed",
+      "browser_tests": 7
+    }
+  },
+  "guide": {
+    "javascript_syntax": "passed",
+    "lab_route_checks": 8,
+    "browser_checks": [
+      "all eight attendee labs",
+      "no instructor controls or delivery-script DOM",
+      "no delivery script/slides/transition keys in content JSON",
+      "missing instructor-runbook endpoint",
+      "saved prompt/notes/progress",
+      "search and navigation",
+      "timer and packet download",
+      "phone layout and inert drawer",
+      "compiled demo"
+    ],
+    "local_http_resources_checked": 17,
+    "packet_integrity": "passed; includes pinned lockfile, all 8 lab handouts, scripts and reference; excludes node_modules, credentials and test output",
+    "automated_browser_tests": {
+      "passed": 7,
+      "failed": 0,
+      "workers": 1
+    },
+    "packet_reproducible_sha256": "01073e51883134855ac3eb275941c3b7ee658f2c38042eddfc24fd1cee134d86",
+    "audience_separation": "Privacy audit passed across public source, static output and ZIP; no instructor delivery paragraphs or runbook files."
+  },
+  "not_claimed": [
+    "No full timed novice rehearsal of all eight labs or all possible agent-generated implementations.",
+    "Client rehearsals cover instruction/Skill/MCP/validation workflows, not an entire timed empty-repository build or a model-quality comparison.",
+    "No participant GitHub PR or Vercel deployment created by these checks.",
+    "No venue-scale concurrency/load validation.",
+    "Reference app is a browser-local demonstration, not an operational booking system."
+  ],
+  "release_gate": {
+    "known_bad_overlap_candidate": "rejected",
+    "test_exit": 1,
+    "original_restored": true
+  },
+  "client_rehearsals": {
+    "codex": {
+      "version": "0.161.0",
+      "authenticated_run": "completed",
+      "project_instructions": "read",
+      "release_check_skill": "explicit filesystem workflow executed",
+      "mcp_search": "passed",
+      "mcp_fetch": "passed",
+      "typecheck": "passed",
+      "unit_tests": 8,
+      "build": "passed",
+      "browser_in_sandbox": "NOT RUN: local server listen EPERM; honest BLOCKED decision; host-terminal browser tests pass"
+    },
+    "claude": {
+      "version": "2.1.305",
+      "native_skill_tool": "release-check launched successfully",
+      "mcp_search": "passed",
+      "mcp_fetch": "passed",
+      "initial_release_report": "incomplete: bounded run hit its configured budget; some shell commands were denied",
+      "report_only_retry": "completed successfully; native Skill invocation and actual report generated",
+      "retry_checks": {
+        "typecheck": "passed",
+        "unit_tests": 8,
+        "build": "passed",
+        "browser_tests": 5,
+        "scope": "disposable initial packet baseline; final updated reference has 7 host-verified browser tests"
+      }
+    }
+  },
+  "public_access": {
+    "site": "https://cityjs-agentic-coding-attendees.shivaylamba.chatgpt.site",
+    "github": "https://github.com/shivaylamba/cityjs-agentic-coding-workshop"
+  }
+}

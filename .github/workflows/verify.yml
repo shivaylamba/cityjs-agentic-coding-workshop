@@ -1,0 +1,33 @@
+name: Verify workshop and reference app
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            materials/reference/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: npm ci
+      - run: npm ci
+        working-directory: materials/reference
+      - run: npx playwright install --with-deps chromium
+      - run: npm run verify
+      - name: Check generated workshop assets are current
+        run: git diff --exit-code -- dist materials/labs materials/reference/docs
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: failure-evidence
+          path: |
+            test-results/
+            materials/reference/test-results/

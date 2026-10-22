@@ -1,0 +1,21 @@
+{
+  "name": "cityjs-agentic-coding-workshop",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "dev": "python3 -m http.server 3260 --bind 127.0.0.1 --directory dist",
+    "reference": "npm --prefix materials/reference run dev",
+    "check": "node --check dist/app.js && npm --prefix materials/reference run check",
+    "test:reference": "npm --prefix materials/reference run test:e2e",
+    "test:guide": "playwright test --config playwright.guide.config.mjs",
+    "prepare:guide": "npm --prefix materials/reference run build && python3 build.py",
+    "verify": "npm run check && python3 build.py && python3 scripts/check-content.py && npm run test:reference && npm run test:guide"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.58.2"
+  }
+}
